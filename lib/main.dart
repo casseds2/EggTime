@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:egg_timer/egg.dart';
+import 'dart:async';
 
 void main() {
   runApp(EggTimer());
@@ -10,7 +11,7 @@ class EggTimer extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Egg Timer",
-      home: Launch(),
+      home: Countdown(),
     );
   }
 }
@@ -20,36 +21,19 @@ class Launch extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Container(
-          height: 200.0,
-          width: 200.0,
-          child: NeumorphicButton(
-            style: NeumorphicStyle(
-              shape: NeumorphicShape.convex,
-              depth: 8.0,
-              lightSource: LightSource.topLeft,
-              color: Colors.yellowAccent,
-            ),
-            boxShape: NeumorphicBoxShape.circle(),
-            onClick: () => {
-              print("Navigate to Options Screen"),
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (contex) => EggOptions(),
-                  ))
-            },
-            child: Center(
-              child: Text(
-                "Lets Cook!",
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                ),
+        child: FlatButton(
+          color: Colors.orangeAccent,
+          padding: EdgeInsets.all(50),
+          shape: CircleBorder(),
+          onPressed: () => {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (contex) => EggOptions(),
               ),
             ),
-          ),
+          },
+          child: Text("Lets Cook!"),
         ),
       ),
     );
@@ -67,8 +51,8 @@ class _EggOptionsState extends State<EggOptions> {
   Egg _selected;
 
   static const _eggTypes = [
-    const Egg(name: "Boiled", value: "boiled"),
-    const Egg(name: "Poached", value: "poached"),
+    const Egg(name: "Boiled", value: "boiled", cookingTime: 6),
+    const Egg(name: "Poached", value: "poached", cookingTime: 5),
   ];
 
   @override
@@ -78,51 +62,148 @@ class _EggOptionsState extends State<EggOptions> {
         title: Text("Choose Your Egg"),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Center(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 60.0),
-              child: DropdownButton<Egg>(
-                value: _selected,
-                icon: Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 16,
-                style: TextStyle(
-                  color: Colors.orangeAccent,
-                ),
-                underline: Container(
-                  height: 2,
-                  color: Colors.orange,
-                ),
-                onChanged: (Egg egg) {
-                  print("Egg ${egg.toString()}");
-                  setState(() {
-                    _selected = egg;
-                  });
-                },
-                items: _eggTypes.map((Egg egg) {
-                  return DropdownMenuItem<Egg>(
-                    value: egg,
-                    child: Text(
-                      egg.name,
-                      style: TextStyle(
-                        fontSize: 35.0,
-                      ),
-                    ),
-                  );
-                }).toList(),
+            child: DropdownButton<Egg>(
+              value: _selected,
+              icon: Icon(Icons.arrow_downward),
+              iconSize: 24,
+              elevation: 16,
+              style: TextStyle(
+                color: Colors.orangeAccent,
               ),
+              underline: Container(
+                height: 2,
+                color: Colors.orange,
+              ),
+              onChanged: (Egg egg) {
+                print("Egg ${egg.toString()}");
+                setState(() {
+                  _selected = egg;
+                });
+              },
+              items: _eggTypes.map((Egg egg) {
+                return DropdownMenuItem<Egg>(
+                  value: egg,
+                  child: Text(
+                    egg.name,
+                    style: TextStyle(
+                      fontSize: 35.0,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
-          )
+          ),
+          SizedBox(
+            height: 50,
+          ),
+          Center(
+            child: FlatButton(
+              color: Colors.orangeAccent,
+              padding: EdgeInsets.all(50),
+              shape: CircleBorder(),
+              onPressed: () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (contex) => Countdown(),
+                  ),
+                ),
+              },
+              child: Text("Cook!"),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class Egg {
-  final String name;
-  final String value;
+class Countdown extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _CountdownState();
+  }
+}
 
-  const Egg({this.name, this.value});
+class _CountdownState extends State<Countdown> {
+  static int _cookingTime = 5;
+  static int _seconds;
+  static int _minutes;
+  Timer _timer;
+
+  void _alertDialog(BuildContext context) {
+    Widget ok = FlatButton(
+      onPressed: () => {
+        Navigator.pop(context),
+      },
+      child: Text("Ok"),
+    );
+
+    AlertDialog alertDialog = AlertDialog(
+      title: Text("Eggs Done!"),
+      content: Text("Finish up..."),
+      actions: <Widget>[
+        ok,
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => alertDialog,
+    );
+  }
+
+  void _startTimer() {
+    const second = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      second,
+      (Timer t) => setState(
+        () {
+          _cookingTime--;
+          if (_cookingTime == 0) {
+            _seconds = 0;
+            _alertDialog(context);
+            _stopTimer();
+            return;
+          }
+          double dubMinutes = _cookingTime / 60;
+          _minutes = dubMinutes.toInt();
+          _seconds = _cookingTime % 60;
+        },
+      ),
+    );
+  }
+
+  void _stopTimer() {
+    _timer.cancel();
+  }
+
+  @override
+  initState() {
+    super.initState();
+    double dubMinutes = _cookingTime / 60;
+    _minutes = dubMinutes.toInt();
+    _seconds = _cookingTime % 60;
+    _startTimer();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Center(
+            child: Text("Minutes $_minutes"),
+          ),
+          Center(
+            child: Text("Seconds $_seconds"),
+          ),
+        ],
+      ),
+    );
+  }
 }
