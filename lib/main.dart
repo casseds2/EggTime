@@ -11,7 +11,7 @@ class EggTimer extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Egg Timer",
-      home: Countdown(),
+      home: Launch(),
     );
   }
 }
@@ -51,8 +51,8 @@ class _EggOptionsState extends State<EggOptions> {
   Egg _selected;
 
   static const _eggTypes = [
-    const Egg(name: "Boiled", value: "boiled", cookingTime: 6),
-    const Egg(name: "Poached", value: "poached", cookingTime: 5),
+    const Egg(name: "Boiled", value: "boiled", cookingTime: 20),
+    const Egg(name: "Poached", value: "poached", cookingTime: 15),
   ];
 
   @override
@@ -108,7 +108,7 @@ class _EggOptionsState extends State<EggOptions> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (contex) => Countdown(),
+                    builder: (contex) => Countdown(_selected.cookingTime),
                   ),
                 ),
               },
@@ -122,22 +122,32 @@ class _EggOptionsState extends State<EggOptions> {
 }
 
 class Countdown extends StatefulWidget {
+  final int cookingTime;
+
+  Countdown(this.cookingTime);
+
   @override
   State<StatefulWidget> createState() {
-    return _CountdownState();
+    return _CountdownState(cookingTime);
   }
 }
 
 class _CountdownState extends State<Countdown> {
-  static int _cookingTime = 5;
-  static int _seconds;
-  static int _minutes;
+  int _cookingTime;
+  int _seconds;
+  int _minutes;
   Timer _timer;
+
+  _CountdownState(this._cookingTime);
 
   void _alertDialog(BuildContext context) {
     Widget ok = FlatButton(
       onPressed: () => {
         Navigator.pop(context),
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Launch()),
+        ),
       },
       child: Text("Ok"),
     );
@@ -177,6 +187,10 @@ class _CountdownState extends State<Countdown> {
     );
   }
 
+  String _formattedTime() {
+    return "${_seconds < 10 ? "0" : ""}$_minutes:${_seconds < 10 ? "0" : ""}$_seconds";
+  }
+
   void _stopTimer() {
     _timer.cancel();
   }
@@ -197,10 +211,14 @@ class _CountdownState extends State<Countdown> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Center(
-            child: Text("Minutes $_minutes"),
-          ),
-          Center(
-            child: Text("Seconds $_seconds"),
+            child: Text(
+              _formattedTime(),
+              style: TextStyle(
+                fontSize: 40.0,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 3.0,
+              ),
+            ),
           ),
         ],
       ),
