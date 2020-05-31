@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:egg_timer/egg_options.dart';
 import 'dart:async';
 
+import 'package:flare_flutter/flare_actor.dart';
+
 void main() {
   runApp(EggTimer());
 }
@@ -64,45 +66,63 @@ class _LaunchState extends State<Launch> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: <Widget>[
-      Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment(0.9, 0.0),
-                  stops: [0.0, 0.5, 0.5, 1],
-                  colors: [
-                    Colors.white,
-                    Colors.lightBlueAccent,
-                    Colors.white,
-                    Colors.lightBlueAccent,
-                  ],
-                  tileMode: TileMode.repeated,
-                ),
-              ),
-              alignment: Alignment.topCenter,
-              child: AnimatedAlign(
-                alignment: _alignment,
-                curve: Curves.bounceOut,
-                duration: const Duration(seconds: 3),
-                child: FlutterLogo(
-                  size: 100,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      AnimatedOpacity(
-        duration: const Duration(seconds: 3),
-        opacity: _opacity,
-        child: Center(
-          child: _cookButton(),
+    return Container(
+      color: Colors.white,
+      child: GestureDetector(
+        onTap: () => {
+          print("Tap!")
+        },
+        child: FlareActor(
+          "assets/Egg.flr",
+          alignment: Alignment.center,
+          fit: BoxFit.contain,
+          animation: "Splash",
         ),
       ),
-    ]);
+    );
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Stack(children: <Widget>[
+  //     Column(
+  //       children: <Widget>[
+  //         Expanded(
+  //           child: Container(
+  //             decoration: BoxDecoration(
+  //               gradient: LinearGradient(
+  //                 begin: Alignment.topCenter,
+  //                 end: Alignment(0.9, 0.0),
+  //                 stops: [0.0, 0.5, 0.5, 1],
+  //                 colors: [
+  //                   Colors.white,
+  //                   Colors.lightBlueAccent,
+  //                   Colors.white,
+  //                   Colors.lightBlueAccent,
+  //                 ],
+  //                 tileMode: TileMode.repeated,
+  //               ),
+  //             ),
+  //             alignment: Alignment.topCenter,
+  //             child: AnimatedAlign(
+  //               alignment: _alignment,
+  //               curve: Curves.bounceOut,
+  //               duration: const Duration(seconds: 3),
+  //               child: FlutterLogo(
+  //                 size: 100,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //     AnimatedOpacity(
+  //       duration: const Duration(seconds: 3),
+  //       opacity: _opacity,
+  //       child: Center(
+  //         child: _cookButton(),
+  //       ),
+  //     ),
+  //   ]);
+  // }
 }
